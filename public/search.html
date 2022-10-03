@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<!-- Search Booking via multiple variables -->
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+  <style>
+    .form {
+      margin: 2px 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 style="margin: 40px 10px; text-align:center">Seach Bookings</h1>
+  <form class="form" action="/searchBookings" method="get">
+    <!-- email -->
+    <div class="row mb-3">
+      <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+      <div class="col-sm-10">
+        <input name="email" type="text" class="form-control" id="inputEmail">
+      </div>
+    </div>
+    <!-- numTickets -->
+    <div class="row mb-3">
+      <label for="inputNumTickets" class="col-sm-2 col-form-label">Number of Tickets</label>
+      <div class="col-sm-10">
+        <input name="numTickets" type="number" class="form-control" id="inputNumTickets" min=1 max=4>
+      </div>
+    </div>
+    <!-- payment method -->
+    <fieldset class="row mb-3" style="margin-top: 30px;">
+      <hr>
+      <legend class="col-form-label col-sm-2 pt-0">Payment Method</legend>
+      <div class="col-sm-10">
+        <!-- default all -->
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="paymentRadios0" value="ALL" checked>
+          <label class="form-check-label" for="paymentRadios0">
+            All
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="paymentRadios1" value="Credit Card">
+          <label class="form-check-label" for="paymentRadios1">
+            Pay with Credit Card
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="paymentRadios2" value="Paypal">
+          <label class="form-check-label" for="paymentRadios2">
+            Pay with Paypal
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="paymentRadios3" value="Octopus">
+          <label class="form-check-label" for="paymentRadios3">
+            Pay with Octopus
+          </label>
+        </div>
+      </div>
+    </fieldset>
+    <!-- term -->
+    <fieldset class="row mb-3" style="margin-top: 30px;">
+      <hr>
+      <legend class="col-form-label col-sm-2 pt-0">Term</legend>
+      <div class="col-sm-10">
+        <!-- default all -->
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="term" id="termRadios0" value="All" checked>
+          <label class="form-check-label" for="termRadios0">
+            All
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="term" id="termRadios1" value="on">
+          <label class="form-check-label" for="termRadios1">
+            on
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="term" id="termRadios2" value="off">
+          <label class="form-check-label" for="termRadios2">
+            off
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <hr style="margin-top: 40px;">
+    <!-- Team -->
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label">Favourite Team</label>
+      <select name="team" class="form-select" aria-label="Default select example" onchange="teamSelected(this.value)">
+        <option value="ALL" selected>All</option>
+        <option value="Avengers">Avengers</option>
+        <option value="JLA">Justice League</option>
+      </select>
+    </div>
+    <!-- Hero -->
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label">Favourite Hero</label>
+      <select name="superhero" class="form-select" aria-label="Default select example" id="superhero">
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+
+
+
+  </form>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
+  <script>
+    var avengers = ["Captain America", "Iron Man", "Thor", "Hulk", "Black Widow", "Hawkeye"];
+    var jla = ["Superman", "Batman", "Wonder Woman", "Flash", "Green Lantern", "Aquaman"];
+
+    // user select a team
+    function teamSelected(team) {
+      // clean previous data
+      superheroElem.options.length = 0
+      // update hero options coordinately
+      if (team == "Avengers") {
+        for (var hero of ["ALL"].concat(avengers)) {
+          var option = document.createElement("option");
+          option.text = hero;
+          option.value = hero;
+          superheroElem.add(option);
+        }
+      } else if (team == "JLA") {
+        for (var hero of ["ALL"].concat(jla)) {
+          var option = document.createElement("option");
+          option.text = hero;
+          option.value = hero;
+          superheroElem.add(option);
+        }
+      } else {
+        for (var hero of ["ALL"].concat(jla).concat(avengers)) {
+          var option = document.createElement("option");
+          option.text = hero;
+          option.value = hero;
+          superheroElem.add(option);
+        }
+      }
+    }
+
+    var superheroElem = document.getElementById('superhero')
+
+    for (var hero of ["ALL"].concat(jla).concat(avengers)) {
+      var option = document.createElement("option");
+      option.text = hero;
+      option.value = hero;
+      superheroElem.add(option);
+    }
+
+  </script>
+</body>
+
+</html>

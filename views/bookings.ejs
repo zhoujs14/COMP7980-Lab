@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>All Bookings</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <table>
+        <% for (var booking of bookings) { %>
+        
+            <tr>
+            	<td><%= booking.email %></td>
+            	<td><%= booking.numTickets %></td>
+            </tr>
+        
+        <% } %>
+     </table>
+  </body>
+</html> 

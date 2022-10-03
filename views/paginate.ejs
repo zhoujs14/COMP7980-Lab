@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>All Bookings</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <table>
+        <% for (var booking of bookings) { %>
+        
+            <tr>
+            	<td><%= booking.email %></td>
+            	<td><%= booking.numTickets %></td>
+            </tr>
+        
+        <% } %>
+     </table>
+     <% for (var i = 1; i <= pages; i++) { %>
+
+        [<a href="/bookings/paginate?perPage=2&page=<%= i %>">
+            <%= i %>
+        </a>]
+    
+    <% } %>
+  </body>
+</html> 
