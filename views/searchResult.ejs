@@ -41,17 +41,26 @@
   </div>
 
   <hr>
-  <% for (var i=1; i <=pages; i++) { %>
-    [<a href="/searchBookings?perPage=6&page=<%= i %><%= parameters %>">
-      <%= i %>
-    </a>]
 
-    <% } %>
-      <script>
-        function onClick(id) {
-          window.location.href = "http://localhost:3000/bookings/update/" + id
-        }
-      </script>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination" style="flex: wrap;">
+      <li class="page-item"><a class="page-link"
+          href="/searchBookings?perPage=6&page=<%= lastPage %><%= parameters %>">Previous</a></li>
+      <% for (var i=1; i <=pages; i++) { %>
+        <li class="page-item"><a class="page-link" href="/searchBookings?perPage=6&page=<%= i %><%= parameters %>">
+            <%= i %>
+          </a></li>
+        <% } %>
+          <li class="page-item"><a class="page-link"
+              href="/searchBookings?perPage=6&page=<%= nextPage %><%= parameters %>">Next</a></li>
+    </ul>
+  </nav>
+
+  <script>
+    function onClick(id) {
+      window.location.href = "http://localhost:3000/bookings/update/" + id
+    }
+  </script>
 </body>
 
 </html>

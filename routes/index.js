@@ -62,14 +62,13 @@ router.get("/searchBookings", async function (req, res) {
   for (let i in form)
     if (i && i != 'perPage' && i !== 'page')
       parameters = parameters + '&' + i + '=' + form[i]
-  res.render('searchResult', { bookings: result, pages: pages, parameters: parameters })
+  res.render('searchResult', { bookings: result, pages: pages, parameters: parameters, lastPage: (Math.max(req.query.page - 1, 0) || 0), nextPage: (Math.min(parseInt(req.query.page) + 1, pages) || 0) })
 });
 
 /* Display all Bookings */
 router.get('/bookings', async function (req, res) {
 
-  let results = await db.collection("bookings").find().toArray();
-
+  let results = await db.collection("bookings").find({}, { limit: 100 }).toArray();
   res.render('bookings', { bookings: results });
 
 });
