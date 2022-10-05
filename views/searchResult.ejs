@@ -26,7 +26,7 @@
   <h1 style="text-align: center">Search Result</h1>
   <div class="row" id="container">
     <% for (var booking of bookings) { %>
-      <div class="card">
+      <div class="card" onclick="onClick('<%= booking._id %>')">
         <img class="card-img-top" src="./img/<%= booking.superhero %>.jpg" alt="<%= booking.superhero %>">
         <div class="card-body">
           <p>email: <%= booking.email %>
@@ -47,6 +47,11 @@
     </a>]
 
     <% } %>
+      <script>
+        function onClick(id) {
+          window.location.href = "http://localhost:3000/bookings/update/" + id
+        }
+      </script>
 </body>
 
 </html>

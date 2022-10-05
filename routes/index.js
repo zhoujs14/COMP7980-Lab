@@ -124,6 +124,8 @@ router.get('/bookings/update/:id', async function (req, res) {
 
   if (!result) return res.status(404).send('Unable to find the requested resource!');
 
+  console.log('update:', result)
+
   res.render("update", { booking: result })
 
 });
