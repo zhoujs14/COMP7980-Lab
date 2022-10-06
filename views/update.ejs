@@ -21,7 +21,7 @@
 
 <body>
   <h1>Update</h1>
-  <!-- form template  input element-->
+  <!-- update form-->
   <form class="form" action="/bookings/update/<%= booking._id %>" method="POST">
     <div class="row mb-3">
       <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
@@ -84,15 +84,14 @@
     </div>
     <div class="row mb-3">
       <label class="col-sm-2 col-form-label">Favourite Hero</label>
-      <select name="superhero" class="form-select" aria-label="Default select example" id="superhero" disabled>
+      <select name="superhero" class="form-select" aria-label="Default select example" id="superhero">
       </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Confirm</button>
+    <button type="btn" onclick="onDelete(event)" class="btn btn-danger">Delete</button>
   </form>
-  <form action="/bookings/delete/<%=  booking._id %>" method="POST" onsubmit="return onDelete()">
-    <button type="submit" class="btn btn-danger">Delete</button>
-  </form>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
     crossorigin="anonymous"></script>
@@ -100,47 +99,47 @@
     var avengers = ["Captain America", "Iron Man", "Thor", "Hulk", "Black Widow", "Hawkeye"];
     var jla = ["Superman", "Batman", "Wonder Woman", "Flash", "Green Lantern", "Aquaman"];
 
+
+
     // user select a team
     function teamSelected(team) {
-      // alert(team)
+      // clean previous data
+      superheroElem.options.length = 0
       // update hero options coordinately
       if (team == "Avengers") {
-
         for (var hero of avengers) {
-          // add option by js:
-          // 1. createElement
-          // 2. initial val
-          // 3. add to parentNode
           var option = document.createElement("option");
           option.text = hero;
           option.value = hero;
           superheroElem.add(option);
         }
-
-        superheroElem.disabled = false;
-
       } else if (team == "JLA") {
-
         for (var hero of jla) {
           var option = document.createElement("option");
           option.text = hero;
           option.value = hero;
           superheroElem.add(option);
         }
-
-        superheroElem.disabled = false;
-
-      } else {
-
-        superheroElem.disabled = true;
       }
     }
 
-    function onDelete() {
-      let conf = confirm("确认删除吗")
-      if (conf)
-        return true
-      return false
+    async function onDelete(event) {
+      event.preventDefault()
+      var r = confirm("Confirm Delete?");
+      if (r) {
+        var response = await fetch("/api/bookings/<%= booking._id%>", {
+          method: "delete",
+        });
+
+        if (response.ok) {
+          alert("booking deleted");
+          location.assign("/search")
+        } else {
+          alert(response.statusText)
+        }
+      } else {
+        alert("cancelled");
+      }
     }
 
     var superheroElem = document.getElementById('superhero')
