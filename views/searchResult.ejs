@@ -12,12 +12,26 @@
 
     .card {
       width: 15rem;
+      cursor: pointer;
     }
 
     .card-img-top {
       width: 14rem;
       height: 20rem;
       object-fit: cover
+    }
+
+    nav {
+      width: 100%;
+    }
+
+    ul {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    li {
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -26,7 +40,7 @@
   <h1 style="text-align: center">Search Result</h1>
   <div class="row" id="container">
     <% for (var booking of bookings) { %>
-      <div class="card" onclick="onClick('<%= booking._id %>')">
+      <div class="card col-xs-6 col-md-4 col-lg-2" onclick="onClick('<%= booking._id %>')">
         <img class="card-img-top" src="./img/<%= booking.superhero %>.jpg" alt="<%= booking.superhero %>">
         <div class="card-body">
           <p>email: <%= booking.email %>
@@ -47,7 +61,8 @@
       <li class="page-item"><a class="page-link"
           href="/searchBookings?perPage=6&page=<%= lastPage %><%= parameters %>">Previous</a></li>
       <% for (var i=1; i <=pages; i++) { %>
-        <li class="page-item"><a class="page-link" href="/searchBookings?perPage=6&page=<%= i %><%= parameters %>">
+        <li id="page<%= i %>" class="page-item"><a class="page-link"
+            href="/searchBookings?perPage=6&page=<%= i %><%= parameters %>">
             <%= i %>
           </a></li>
         <% } %>
@@ -60,6 +75,12 @@
     function onClick(id) {
       window.location.href = "http://localhost:3000/bookings/update/" + id
     }
+
+    // active current page item
+    const urlParams = new URLSearchParams(window.location.search);
+    let cur = urlParams.get("page")
+    if (!cur) cur = '1'
+    document.getElementById('page' + cur).classList.add('active')
   </script>
 </body>
 

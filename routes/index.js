@@ -46,7 +46,9 @@ router.get("/searchBookings", async function (req, res) {
   if (form.term === 'on')
     whereClause.term = form.term
   else if (form.term === 'off')
-    whereClause.term = { $exists: false } // term not exist
+    // mock data include term:'', which should not exist
+    whereClause = { $and: [whereClause, { $or: [{ term: '' }, { term: { $exists: false } }] }] }
+  //whereClause.term = { $exists: false } // term not exist
 
   //console.log('combined:', whereClause)
   //paginate
@@ -62,7 +64,8 @@ router.get("/searchBookings", async function (req, res) {
   for (let i in form)
     if (i && i != 'perPage' && i !== 'page')
       parameters = parameters + '&' + i + '=' + form[i]
-  res.render('searchResult', { bookings: result, pages: pages, parameters: parameters, lastPage: (Math.max(req.query.page - 1, 0) || 0), nextPage: (Math.min(parseInt(req.query.page) + 1, pages) || 0) })
+  curPage = req.query.page || 1
+  res.render('searchResult', { bookings: result, pages: pages, parameters: parameters, lastPage: (Math.max(curPage - 1, 0) || 0), nextPage: (Math.min(parseInt(curPage) + 1, pages) || 0) })
 });
 
 /* Display all Bookings */
@@ -70,7 +73,6 @@ router.get('/bookings', async function (req, res) {
 
   let results = await db.collection("bookings").find({}, { limit: 100 }).toArray();
   res.render('bookings', { bookings: results });
-
 });
 
 /* Display a single Booking */
