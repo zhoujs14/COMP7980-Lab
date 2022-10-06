@@ -4,21 +4,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Booking</title>
+  <title>Booking with Ajax</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
   <style>
     .form {
       margin: 2px 20px;
     }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+    }
   </style>
 </head>
 
 <body>
-  <a href="search" style="margin:10px 10px">jump to search booking</a>
   <h1 style="text-align: center">Book</h1>
   <!-- form template  input element-->
-  <form class="form" action="/bookings" method="POST">
+  <form class="form" action="/bookings" method="POST" onsubmit="updateBooking(event)">
     <div class="row mb-3">
       <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
       <div class="col-sm-10">
@@ -84,48 +88,38 @@
       <select name="superhero" class="form-select" aria-label="Default select example" id="superhero" disabled>
       </select>
     </div>
-
+    <button type="button" class="btn btn-danger" onclick="deleteBooking()">Delete</button>
   </form>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
     crossorigin="anonymous"></script>
   <script>
+    //====================
+    //initialize team & hero select
+    //====================
     var avengers = ["Captain America", "Iron Man", "Thor", "Hulk", "Black Widow", "Hawkeye"];
     var jla = ["Superman", "Batman", "Wonder Woman", "Flash", "Green Lantern", "Aquaman"];
 
     // user select a team
     function teamSelected(team) {
       superheroElem.options.length = 0
-      //alert(team)
-      // update hero options coordinately
       if (team == "Avengers") {
-
         for (var hero of avengers) {
-          // add option by js:
-          // 1. createElement
-          // 2. initial val
-          // 3. add to parentNode
           var option = document.createElement("option");
           option.text = hero;
           option.value = hero;
           superheroElem.add(option);
         }
-
         superheroElem.disabled = false;
-
       } else if (team == "JLA") {
-
         for (var hero of jla) {
           var option = document.createElement("option");
           option.text = hero;
           option.value = hero;
           superheroElem.add(option);
         }
-
         superheroElem.disabled = false;
-
       } else {
-
         superheroElem.disabled = true;
       }
     }
@@ -133,6 +127,79 @@
     var superheroElem = document.getElementById('superhero')
     superheroElem.options.length = 0
 
+    //====================
+    // query booking info
+    //====================
+
+    async function fetchBooking() {
+      var response = await fetch("/api/bookings/" + id);
+
+      if (response.ok) {
+        var data = await response.json();
+        console.log(data)
+
+        document.querySelector("#inputEmail3").value = data.email;
+        document.querySelector("#inputPassword3").value = data.numTickets;
+        document.querySelector(`option[value='${data.team}']`).selected = true;
+        teamSelected(data.team)
+        document.querySelector(`option[value='${data.superhero}']`).selected = true;
+        document.querySelector(`input[value='${data.payment}']`).checked = true;
+        document.querySelector("#gridCheck1").checked = data.terms;
+      }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let id = urlParams.get("id")
+
+    fetchBooking();
+
+    //====================
+    //handle form submission
+    //====================
+    async function updateBooking(event) {
+
+      event.preventDefault(); // this statement cancel the regular  submission
+
+      var response = await fetch("/api/bookings/" + id, {
+        method: "put",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        // body: "team=Avengers&superhero=Hulk"
+        body: new URLSearchParams(new FormData(event.target)) //target: reference to the object to which the event was originally dispatched,
+      });
+
+      if (response.ok) {
+
+        var text = await response.text();
+        alert(text);
+        location.assign("/bookings")
+      } else {
+        alert(response.statusText)
+      }
+    }
+
+
+    async function deleteBooking() {
+
+      var r = confirm("Confirm Delete?");
+
+      if (r) {
+
+        var response = await fetch("/api/bookings/" + id, {
+          method: "delete",
+        });
+
+        if (response.ok) {
+          alert("booking deleted");
+          location.assign("/bookings")
+        } else {
+          alert(response.statusText)
+        }
+      } else {
+        alert("cancelled");
+      }
+    }
   </script>
 </body>
 

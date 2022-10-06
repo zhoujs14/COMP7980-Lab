@@ -181,4 +181,68 @@ router.get('/bookings/paginate', async function (req, res) {
 
 });
 
+/* Ajax-Pagination */
+router.get('/api/bookings', async function (req, res) {
+
+  var perPage = Math.max(req.query.perPage, 2) || 2;
+
+  var results = await db.collection("bookings").find({}, {
+    limit: perPage,
+    skip: perPage * (Math.max(req.query.page - 1, 0) || 0)
+  }).toArray();
+
+  var pages = Math.ceil(await db.collection("bookings").count() / perPage);
+
+  // return res.render('paginate', { bookings: results, pages: pages, perPage: perPage });
+
+  return res.json({ bookings: results, pages: pages })
+
+});
+
+// Form for updating a single Booking
+router.get('/api/bookings/:id', async function (req, res) {
+
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(404).send('Unable to find the requested resource!');
+
+  let result = await db.collection("bookings").findOne({ _id: ObjectId(req.params.id) });
+
+  if (!result) return res.status(404).send('Unable to find the requested resource!');
+
+  res.json(result);
+
+});
+
+// Updating a single Booking - Ajax
+router.put('/api/bookings/:id', async function (req, res) {
+
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(404).send('Unable to find the requested resource!');
+
+  req.body.numTickets = parseInt(req.body.numTickets);
+
+  var result = await db.collection("bookings").findOneAndReplace(
+    { _id: ObjectId(req.params.id) }, req.body
+  );
+
+  if (!result.value)
+    return res.status(404).send('Unable to find the requested resource!');
+
+  res.send("Booking updated.");
+
+});
+
+//Delete a single Booking
+router.delete('/api/bookings/:id', async function (req, res) {
+
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(404).send('Unable to find the requested resource!');
+
+  let result = await db.collection("bookings").findOneAndDelete({ _id: ObjectId(req.params.id) })
+
+  if (!result.value) return res.status(404).send('Unable to find the requested resource!');
+
+  return res.status(204).send();
+
+});
 module.exports = router;
