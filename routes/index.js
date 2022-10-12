@@ -201,7 +201,7 @@ router.get('/api/bookings', async function (req, res) {
 
 });
 
-// Form for updating a single Booking
+// get booking by id
 router.get('/api/bookings/:id', async function (req, res) {
 
   if (!ObjectId.isValid(req.params.id))

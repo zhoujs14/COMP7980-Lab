@@ -157,9 +157,7 @@
     //handle form submission
     //====================
     async function updateBooking(event) {
-
       event.preventDefault(); // this statement cancel the regular  submission
-
       var response = await fetch("/api/bookings/" + id, {
         method: "put",
         headers: {

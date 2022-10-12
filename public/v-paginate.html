@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>All Bookings</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <!-- application instance will mount to DOM element #app and manage its elements -->
+  <div id="app">
+    <table>
+      <!-- directive to render a list of items based on an array.  -->
+      <tr v-for="booking in bookings">
+        <td>{{booking.email}}</td>
+        <td>{{booking.numTickets}}</td>
+      </tr>
+    </table>
+    <!-- v-on directive to listen to DOM events and run some JavaScript when they’re triggered -->
+    <button v-for="i in pages" @click="fetchPage(i)">{{ i }}</button> <!-- v-on:click equals @click-->
+  </div>
+
+  <script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+    // createAPP func will create a new application instance
+    // and it provide an options object
+    //                   (normal javascript object that contains a set of named parameters that are passed into a func)
+    createApp({
+      //data option has to be a function returning some instance properties.
+      data() {
+        return {
+          message: 'Hello Vue!',
+          bookings: [],
+          lastPage: 0,
+          perPage: Math.max(parseInt(new URLSearchParams(window.location.search).get("perPage")), 2) || 2,
+
+        }
+      },
+      //computed property
+      computed: {
+        //pages will be recomputed whenever there's value change on the lastPage instance property.
+        pages: function () {
+          var pages = [];
+          for (var i = 1; i <= this.lastPage; i++) {
+            pages.push(i)
+          }
+          return pages;
+        }
+      },
+      //methods option
+      methods: {
+        fetchPage: async function (page) {
+          console.log(page)
+          var response = await fetch("/api/bookings?perPage=" + this.perPage + "&page=" + page);
+
+          if (response.ok) {
+            var data = await response.json();
+            //instance properties are exposed under this
+            this.bookings = data.bookings;
+            this.lastPage = data.pages
+
+          } else {
+            alert(response.statusText);
+          }
+        },
+      },
+      // hook called pretty much after the DOM elements are ready
+      mounted: function () {
+        this.fetchPage(1)
+      },
+    }).mount('#app') //An application won't render anything until .mount() method is called.
+
+  </script>
+</body>
+
+</html>

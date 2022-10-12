@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booking with Ajax</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+  <style>
+    .form {
+      margin: 2px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <!-- title -->
+    <h1 style="text-align: center">Book</h1>
+    <!-- form -->
+    <form class="form" @submit.prevent="updateBooking()">
+      <div class="row mb-3">
+        <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+          <!-- email -->
+          <input name="email" type="email" class="form-control" v-model="booking.email" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="inputPassword3" class="col-sm-2 col-form-label">Number of Tickets</label>
+        <div class="col-sm-10">
+          <!-- numTickets -->
+          <input name="numTickets" type="number" class="form-control" v-model="booking.numTickets" min=1 max=4>
+        </div>
+      </div>
+      <fieldset class="row mb-3" style="margin-top: 30px;">
+        <hr>
+        <legend class="col-form-label col-sm-2 pt-0">Payment Method</legend>
+        <div class="col-sm-10">
+          <div class="form-check">
+            <!-- payment -->
+            <input class="form-check-input" type="radio" value="Credit Card" v-model="booking.payment" checked>
+            <label class="form-check-label" for="gridRadios1">
+              Pay with Credit Card
+            </label>
+          </div>
+          <div class="form-check">
+            <!-- payment -->
+            <input class="form-check-input" type="radio" value="Paypal" v-model="booking.payment">
+            <label class="form-check-label" for="gridRadios2">
+              Pay with Paypal
+            </label>
+          </div>
+          <div class="form-check disabled">
+            <!-- payment -->
+            <input class="form-check-input" type="radio" value="Octopus" v-model="booking.payment">
+            <label class="form-check-label" for="gridRadios3">
+              Pay with Octopus
+            </label>
+          </div>
+        </div>
+      </fieldset>
+      <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+          <div class="form-check">
+            <!-- term -->
+            <input class="form-check-input" v-model="booking.terms" type="checkbox">
+            <label class="form-check-label" for="gridCheck1">
+              term
+            </label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Confirm</button>
+
+      <hr style="margin-top: 40px;">
+      <!-- select elements -->
+      <div class="row mb-3">
+        <label class="col-sm-2 col-form-label">Favourite Team</label>
+        <select class="form-select" aria-label="Default select example" v-model="booking.team" @change="
+          teamSelected(true)">
+          <option selected value="">Open this select menu</option>
+          <option value="Avengers">Avengers</option>
+          <option value="JLA">Justice League</option>
+        </select>
+      </div>
+      <div class="row mb-3" v-if="heroes.length != 0">
+        <label class="col-sm-2 col-form-label">Favourite Hero</label>
+        <select v-model="booking.superhero" class="form-select" aria-label="Default select example">
+          <option v-for="hero in heroes" :value="hero">{{ hero }}</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-danger" @click="this.deleteBooking()">Delete</button>
+    </form>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+    crossorigin="anonymous"></script>
+  <script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+    createApp({
+      data() {
+        return {
+          // message: 'Hello Vue!'
+          booking: {},
+          id: new URLSearchParams(window.location.search).get("id"),
+          heroes: []
+        }
+      },
+      methods: {
+        updateBooking: async function () {
+          delete this.booking._id;
+          var response = await fetch("/api/bookings/" + this.id, {
+            method: "put",
+            headers: {
+              'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(this.booking)
+          });
+
+          if (response.ok) {
+
+            var text = await response.text();
+            alert(text);
+            location.assign("/bookings")
+          } else {
+            alert(response.statusText)
+          }
+        },
+        deleteBooking: async function () {
+          var r = confirm("Confirm Delete?");
+          if (r) {
+            var response = await fetch("/api/bookings/" + this.booking._id, {
+              method: "delete",
+            });
+
+            if (response.ok) {
+              alert("booking deleted");
+              location.assign("/bookings")
+            } else {
+              alert(response.statusText)
+            }
+          } else {
+            alert("cancelled");
+          }
+        },
+        teamSelected: function (resetHero) {
+          if (resetHero) this.booking.superhero = ""
+
+          if (this.booking.team == "Avengers") {
+            this.heroes = ["Captain America", "Iron Man", "Thor", "Hulk", "Black Widow", "Hawkeye"]
+          } else if (this.booking.team == "JLA") {
+            this.heroes = ["Superman", "Batman", "Wonder Woman", "Flash", "Green Lantern", "Aquaman"];
+          } else {
+            this.heroes = []
+          }
+        }
+      },
+      mounted: async function () {
+        var response = await fetch("/api/bookings/" + this.id);
+        if (response.ok) {
+          this.booking = await response.json();
+
+          if (this.booking.terms) this.booking.terms = true;
+          this.teamSelected(false)
+        }
+      },
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
