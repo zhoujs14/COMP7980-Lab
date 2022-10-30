@@ -186,7 +186,7 @@ router.get('/bookings/paginate', async function (req, res) {
 /* Ajax-Pagination */
 router.get('/api/bookings', async function (req, res) {
 
-  var perPage = Math.max(req.query.perPage, 2) || 2;
+  var perPage = Math.max(req.query.perPage, 1) || 1;
 
   var results = await db.collection("bookings").find({}, {
     limit: perPage,
@@ -245,6 +245,20 @@ router.delete('/api/bookings/:id', async function (req, res) {
   if (!result.value) return res.status(404).send('Unable to find the requested resource!');
 
   return res.status(204).send();
+
+});
+
+// GroupBy
+router.get('/api/bookings/aggregate/groupby', async function (req, res) {
+
+  const pipeline = [
+    { $match: { payment: "Paypal" } },
+    { $group: { _id: "$superhero", count: { $sum: 1 } } }
+  ];
+
+  const results = await db.collection("bookings").aggregate(pipeline).toArray();
+
+  return res.json(results);
 
 });
 module.exports = router;
