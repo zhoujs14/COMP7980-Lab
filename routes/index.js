@@ -7,6 +7,8 @@ var url = 'mongodb://22435816:ekggxfwyYEhxtWtMHmUDDKlIfuoPdqW8e17eIcpaDySfGhAHd8
 
 var db;
 
+const { v4: uuidv4 } = require('uuid');
+
 MongoClient.connect(url, function (err, client) {
   db = client.db('bookingsDB');
   console.log("DB connected");
@@ -97,6 +99,12 @@ router.post('/bookings', async function (req, res) {
   req.body.numTickets = parseInt(req.body.numTickets);
 
   let result = await db.collection("bookings").insertOne(req.body);
+
+  for (var i = 0; i < req.body.numTickets; i++) {
+
+    await db.collection("tickets").insertOne({ bookingId: result.insertedId, uuid: uuidv4() });
+  }
+
   res.status(201).json({ id: result.insertedId });
 
 });
@@ -259,6 +267,33 @@ router.get('/api/bookings/aggregate/groupby', async function (req, res) {
   const results = await db.collection("bookings").aggregate(pipeline).toArray();
 
   return res.json(results);
+
+});
+
+router.get("/api/bookings/:id/tickets", async function (req, res) {
+
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(404).send('Unable to find the requested resource!');
+
+  var pipelines = [
+    { $match: { _id: req.params.id } },
+    {
+      $lookup:
+      {
+        from: "tickets",
+        localField: "_id",
+        foreignField: "bookingId",
+        as: "tickets"
+      }
+    }
+  ]
+
+  let results = await db.collection("bookings").aggregate(pipelines).toArray();
+
+  if (results.length > 0)
+    return res.json(results[0]);
+  else
+    return res.status(404).send("Not Found");
 
 });
 module.exports = router;
