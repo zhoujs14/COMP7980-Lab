@@ -270,6 +270,7 @@ router.get('/api/bookings/aggregate/groupby', async function (req, res) {
 
 });
 
+// retrive ticket info via bookingId
 router.get("/api/bookings/:id/tickets", async function (req, res) {
 
   if (!ObjectId.isValid(req.params.id))
