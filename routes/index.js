@@ -94,19 +94,21 @@ router.get('/bookings/read/:id', async function (req, res) {
 });
 
 /* Handle the Form */
+/* Handle the Form submission with Restful Api */
 router.post('/bookings', async function (req, res) {
 
   req.body.numTickets = parseInt(req.body.numTickets);
 
-  let result = await db.collection("bookings").insertOne(req.body);
+  req.body.analysis = await sentimentAnalysis(textAnalyticsClient, req.body.comment);
 
   for (var i = 0; i < req.body.numTickets; i++) {
 
     await db.collection("tickets").insertOne({ bookingId: result.insertedId, uuid: uuidv4() });
   }
 
-  res.status(201).json({ id: result.insertedId });
+  let result = await db.collection("bookings").insertOne(req.body);
 
+  res.status(201).json({ id: result.insertedId });
 });
 
 // Delete a single Booking
@@ -298,3 +300,36 @@ router.get("/api/bookings/:id/tickets", async function (req, res) {
 
 });
 module.exports = router;
+
+"use strict";
+
+const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
+const key = '177fe7ab4da2408c901f1f18605c7d86';
+const endpoint = 'https://eastasia.api.cognitive.microsoft.com/sts/v1.0/issuetoken';
+// Authenticate the client with your key and endpoint
+const textAnalyticsClient = new TextAnalyticsClient(endpoint, new AzureKeyCredential(key));
+
+// Example method for detecting sentiment in text
+async function sentimentAnalysis(client, comment) {
+
+  const sentimentInput = [
+    // "I had the best day of my life. I wish you were there with me."
+    comment
+  ];
+  const sentimentResult = await client.analyzeSentiment(sentimentInput);
+
+  sentimentResult.forEach(document => {
+    console.log(`ID: ${document.id}`);
+    console.log(`\tDocument Sentiment: ${document.sentiment}`);
+    console.log(`\tDocument Scores:`);
+    console.log(`\t\tPositive: ${document.confidenceScores.positive.toFixed(2)} \tNegative: ${document.confidenceScores.negative.toFixed(2)} \tNeutral: ${document.confidenceScores.neutral.toFixed(2)}`);
+    console.log(`\tSentences Sentiment(${document.sentences.length}):`);
+    document.sentences.forEach(sentence => {
+      console.log(`\t\tSentence sentiment: ${sentence.sentiment}`)
+      console.log(`\t\tSentences Scores:`);
+      console.log(`\t\tPositive: ${sentence.confidenceScores.positive.toFixed(2)} \tNegative: ${sentence.confidenceScores.negative.toFixed(2)} \tNeutral: ${sentence.confidenceScores.neutral.toFixed(2)}`);
+    });
+  });
+
+  return sentimentResult;
+}
