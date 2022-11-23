@@ -252,8 +252,8 @@ router.delete('/api/bookings/:id', async function (req, res) {
 router.get('/api/bookings/aggregate/groupby', async function (req, res) {
 
   const pipeline = [
-    { $match: { payment: "Paypal" } },
-    { $group: { _id: "$superhero", count: { $sum: 1 } } }
+    { $match: { gender: "Female" } },
+    { $group: { _id: "$times", count: { $sum: 1 } } }
   ];
 
   const results = await db.collection("bookings").aggregate(pipeline).toArray();
